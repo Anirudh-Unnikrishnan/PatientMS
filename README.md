@@ -27,7 +27,7 @@ Role: Admin
 Email:admin@patientms.com
 Password:Admin@123
 
-Roles & Access
-Role:Admin- everything
-Role:Doctor- Availability,Reports
-Role:Receptionist- Patients,Bookings
+Roles & Access:
+Role:Admin- everything;
+Role:Doctor- Availability,Reports;
+Role:Receptionist- Patients,Bookings.
