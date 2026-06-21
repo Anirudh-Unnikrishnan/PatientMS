@@ -15,7 +15,7 @@ Login system with 3 roles: Admin, Doctor, Receptionist
 
  Getting Started
 
-git clone https://github.com/YOUR-USERNAME/PatientMS.git
+git clone https://github.com/Anirudh-Unnikrishnan/PatientMS.git
 cd PatientMS
 dotnet restore
 dotnet ef database update
