@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>Dashboard</h1>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:20px; margin-bottom:30px;">
+    <div class="card" style="border-top:5px solid #1B6CA8; text-align:center;">
+        <h2 style="font-size:2.5rem; color:#1B6CA8; margin:0;">@ViewData["PatientCount"]</h2>
+        <p style="color:#666; margin:5px 0 0;">Total Patients</p>
+    </div>
+    <div class="card" style="border-top:5px solid #28a745; text-align:center;">
+        <h2 style="font-size:2.5rem; color:#28a745; margin:0;">@ViewData["DoctorCount"]</h2>
+        <p style="color:#666; margin:5px 0 0;">Total Doctors</p>
+    </div>
+    <div class="card" style="border-top:5px solid #ffc107; text-align:center;">
+        <h2 style="font-size:2.5rem; color:#ffc107; margin:0;">@ViewData["TodayBookings"]</h2>
+        <p style="color:#666; margin:5px 0 0;">Today's Bookings</p>
+    </div>
+    <div class="card" style="border-top:5px solid #17a2b8; text-align:center;">
+        <h2 style="font-size:2.5rem; color:#17a2b8; margin:0;">@ViewData["PendingReports"]</h2>
+        <p style="color:#666; margin:5px 0 0;">Patient Reports</p>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div class="card">
+        <h4 style="color:#1B6CA8;">Quick Actions</h4>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+            <a asp-controller="Patients" asp-action="Create" class="btn btn-primary">
+                + Register New Patient
+            </a>
+            <a asp-controller="Bookings" asp-action="Create" class="btn btn-secondary">
+                + Book Appointment
+            </a>
+            <a asp-controller="Calendar" asp-action="Index" class="btn btn-secondary">
+                View Calendar
+            </a>
+        </div>
+    </div>
+    <div class="card">
+        <h4 style="color:#1B6CA8;">System Info</h4>
+        <p style="color:#666;">Logged in as: <strong>@User.Identity!.Name</strong></p>
+        <p style="color:#666;">Date: <strong>@DateTime.Now.ToString("dddd, dd MMMM yyyy")</strong></p>
+        <p style="color:#666;">Time: <strong>@DateTime.Now.ToString("HH:mm")</strong></p>
+    </div>
+</div>
