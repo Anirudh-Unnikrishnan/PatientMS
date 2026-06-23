@@ -1,66 +1,96 @@
 @model PatientMS.Models.PatientReport
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Report Details";
+
+    string GetIcon(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return "📎";
+        var e = fileName.LastIndexOf('.');
+        if (e < 0) return "📎";
+        var ext = fileName.Substring(e).ToLower();
+        if (ext == ".pdf") return "📄";
+        if (ext == ".doc" || ext == ".docx") return "📝";
+        if (ext == ".xls" || ext == ".xlsx") return "📊";
+        if (ext == ".ppt" || ext == ".pptx") return "📋";
+        if (ext == ".jpg" || ext == ".jpeg" || ext == ".png") return "🖼️";
+        if (ext == ".txt") return "📃";
+        if (ext == ".csv") return "📊";
+        return "📎";
+    }
 }
 
-<h1>Details</h1>
+<h1>Report Details</h1>
+<hr />
 
-<div>
-    <h4>PatientReport</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Patient)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Patient.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FileName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FileName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FilePath)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FilePath)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FileType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FileType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UploadDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UploadDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UploadedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UploadedBy)
-        </dd>
-    </dl>
+<div class="row">
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class="col-sm-3">Patient</dt>
+            <dd class="col-sm-9">@Model.Patient?.FullName</dd>
+
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">@Model.Title</dd>
+
+            <dt class="col-sm-3">Description</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3">Uploaded By</dt>
+            <dd class="col-sm-9">@Model.UploadedBy</dd>
+
+            <dt class="col-sm-3">Upload Date</dt>
+            <dd class="col-sm-9">@Model.UploadDate.ToString("dd MMM yyyy, hh:mm tt")</dd>
+
+            <dt class="col-sm-3">Documents</dt>
+            <dd class="col-sm-9">
+                @if (!string.IsNullOrEmpty(Model.FilePath))
+                {
+                    var paths = Model.FilePath.Split(';');
+                    var names = !string.IsNullOrEmpty(Model.FileName)
+                        ? Model.FileName.Split(';')
+                        : paths;
+
+                    <div class="d-flex flex-column gap-2">
+                        @for (int i = 0; i < paths.Length; i++)
+                        {
+                            var path = paths[i].Trim();
+                            var name = i < names.Length ? names[i].Trim() : "File " + (i + 1);
+                            var icon = GetIcon(name);
+
+                            <div class="card p-3 mb-2" style="max-width:420px;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span style="font-size:2rem;">@icon</span>
+                                    <div>
+                                        <div class="fw-bold mb-1">@name</div>
+                                        <a href="@path" target="_blank"
+                                           class="btn btn-sm btn-outline-primary me-1">
+                                            📂 Open
+                                        </a>
+                                        <a href="@path" download="@name"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            ⬇️ Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span class="text-muted">No documents uploaded.</span>
+                }
+            </dd>
+        </dl>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="mt-3">
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Edit</a>
+    }
+    <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
 </div>

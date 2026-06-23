@@ -295,6 +295,12 @@ namespace PatientMS.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<TimeSpan?>("BreakEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan?>("BreakStart")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DayOfWeek")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -331,6 +337,7 @@ namespace PatientMS.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FullName")

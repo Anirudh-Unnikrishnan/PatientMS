@@ -61,6 +61,8 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\Uploads\Reports\012d8d00-6458-4421-9e87-e2c976d0e891.png
+wwwroot\Uploads\Reports\d9b74b54-dfb8-4331-a87d-6b6e2c233385.docx
 C:\Users\aniru\source\repos\PatientMS\PatientMS\wwwroot\css\site.css
 C:\Users\aniru\source\repos\PatientMS\PatientMS\wwwroot\favicon.ico
 C:\Users\aniru\source\repos\PatientMS\PatientMS\wwwroot\js\site.js

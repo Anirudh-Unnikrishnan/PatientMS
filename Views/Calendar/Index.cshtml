@@ -4,13 +4,211 @@
 
 @section Styles {
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+    <style>
+        /* ── Calendar container ── */
+        .fc {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* ── Toolbar title ── */
+        .fc-toolbar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4fd1c5;
+        }
+
+        /* ── Toolbar buttons ── */
+        .fc-button-primary {
+            background: linear-gradient(135deg, #2c7a7b, #4fd1c5) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            color: #0f1117 !important;
+            font-weight: 700 !important;
+            padding: 6px 16px !important;
+            transition: all 0.2s ease !important;
+        }
+
+            .fc-button-primary:hover {
+                background: linear-gradient(135deg, #4fd1c5, #81e6d9) !important;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(79,209,197,0.4) !important;
+            }
+
+            .fc-button-primary:not(:disabled):active,
+            .fc-button-primary:not(:disabled).fc-button-active {
+                background: #2c7a7b !important;
+                box-shadow: none !important;
+            }
+
+        /* ── Calendar background ── */
+        .fc-view-harness {
+            background: #1a2332;
+            border-radius: 12px;
+        }
+
+        /* ── Day headers ── */
+        .fc-col-header-cell {
+            background: linear-gradient(135deg, #1a3a4a, #2c7a7b);
+            padding: 10px 0 !important;
+        }
+
+        .fc-col-header-cell-cushion {
+            color: #4fd1c5 !important;
+            font-weight: 700;
+            text-decoration: none !important;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Time slots ── */
+        .fc-timegrid-slot {
+            border-color: #2d3748 !important;
+        }
+
+        .fc-timegrid-slot-label-cushion {
+            color: #a0aec0 !important;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* ── Day cells ── */
+        .fc-daygrid-day {
+            background: #1a2332;
+            border-color: #2d3748 !important;
+        }
+
+        .fc-daygrid-day-number {
+            color: #a0aec0 !important;
+            text-decoration: none !important;
+        }
+
+        .fc-day-today {
+            background: rgba(79,209,197,0.06) !important;
+        }
+
+            .fc-day-today .fc-daygrid-day-number {
+                color: #4fd1c5 !important;
+                font-weight: 700;
+            }
+
+        /* ── Grid lines ── */
+        .fc-scrollgrid,
+        .fc-scrollgrid-section > td,
+        .fc-scrollgrid td,
+        .fc-scrollgrid th {
+            border-color: #2d3748 !important;
+        }
+
+        /* ── Now indicator ── */
+        .fc-timegrid-now-indicator-line {
+            border-color: #4fd1c5 !important;
+            border-width: 2px !important;
+        }
+
+        .fc-timegrid-now-indicator-arrow {
+            border-top-color: #4fd1c5 !important;
+        }
+
+        /* ── Events ── */
+        .fc-event {
+            border-radius: 8px !important;
+            font-size: 0.8rem !important;
+            padding: 3px 6px !important;
+            border: none !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+            .fc-event:hover {
+                transform: scale(1.02);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+            }
+
+        .fc-event-title {
+            color: white !important;
+        }
+
+        /* ── Month view more link ── */
+        .fc-daygrid-more-link {
+            color: #4fd1c5 !important;
+            font-weight: 700;
+        }
+    </style>
 }
 
-<h1>Appointment Calendar</h1>
+<h2 style="font-weight:700; margin-bottom:24px;">Appointment Calendar</h2>
 
-<div id='calendar' style='background:white; padding:20px;
-border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.08);
-min-height: 500px;'></div>
+<div class="card" style="padding: 24px;">
+    <div id="calendar" style="min-height:600px;"></div>
+</div>
+
+<!-- Event Detail Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:#4fd1c5; font-weight:700;">
+                    Appointment Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr style="border-bottom:1px solid #2d3748; padding-bottom:8px;">
+                        <td style="color:#a0aec0; font-weight:600; padding:10px 0;
+                            width:80px; font-size:0.8rem; text-transform:uppercase;">
+                            Patient
+                        </td>
+                        <td style="color:#e2e8f0; font-weight:600; padding:10px 0;">
+                            <span id="modal-patient"></span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #2d3748;">
+                        <td style="color:#a0aec0; font-weight:600; padding:10px 0;
+                            font-size:0.8rem; text-transform:uppercase;">
+                            Doctor
+                        </td>
+                        <td style="color:#e2e8f0; font-weight:600; padding:10px 0;">
+                            <span id="modal-doctor"></span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #2d3748;">
+                        <td style="color:#a0aec0; font-weight:600; padding:10px 0;
+                            font-size:0.8rem; text-transform:uppercase;">
+                            Status
+                        </td>
+                        <td style="padding:10px 0;">
+                            <span id="modal-status"
+                                  style="background:rgba(79,209,197,0.15);
+                                color:#4fd1c5; border-radius:20px;
+                                padding:3px 12px; font-weight:700;
+                                font-size:0.8rem;">
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="color:#a0aec0; font-weight:600; padding:10px 0;
+                            font-size:0.8rem; text-transform:uppercase;">
+                            Reason
+                        </td>
+                        <td style="color:#e2e8f0; font-weight:600; padding:10px 0;">
+                            <span id="modal-reason"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
@@ -18,15 +216,35 @@ min-height: 500px;'></div>
         document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+        initialView: 'timeGridWeek',
         headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
+        slotMinTime: '07:00:00',
+        slotMaxTime: '20:00:00',
+        allDaySlot: false,
+        nowIndicator: true,
         events: '/Calendar/GetEvents',
-        eventColor: '#1B6CA8',
-        eventTextColor: '#ffffff'
+        eventClick: function (info) {
+        if (info.event.extendedProps.patient) {
+        document.getElementById('modal-patient').textContent =
+        info.event.extendedProps.patient || 'N/A';
+        document.getElementById('modal-doctor').textContent =
+        info.event.extendedProps.doctor || 'N/A';
+        document.getElementById('modal-status').textContent =
+        info.event.extendedProps.status || 'N/A';
+        document.getElementById('modal-reason').textContent =
+        info.event.extendedProps.reason || 'Not specified';
+        var modal = new bootstrap.Modal(
+        document.getElementById('eventModal'));
+        modal.show();
+        }
+        },
+        eventDidMount: function (info) {
+        info.el.title = info.event.title;
+        }
         });
         calendar.render();
         });

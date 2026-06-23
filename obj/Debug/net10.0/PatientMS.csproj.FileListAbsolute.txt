@@ -392,5 +392,14 @@ C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\refint\Patient
 C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\PatientMS.pdb
 C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\PatientMS.genruntimeconfig.cache
 C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\ref\PatientMS.dll
-C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\compressed\80h1zwpxya-{0}-d4iro5hle0-d4iro5hle0.gz
+C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\PatientMS.sourcelink.json
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\ClosedXML.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\ClosedXML.Parser.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\ExcelNumberFormat.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\RBush.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\SixLabors.Fonts.dll
+C:\Users\aniru\source\repos\PatientMS\PatientMS\bin\Debug\net10.0\System.IO.Packaging.dll
 C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+C:\Users\aniru\source\repos\PatientMS\PatientMS\obj\Debug\net10.0\compressed\80h1zwpxya-{0}-s5g28ku9sj-s5g28ku9sj.gz

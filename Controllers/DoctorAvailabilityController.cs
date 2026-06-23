@@ -4,14 +4,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PatientMS.Data;
 using PatientMS.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ClosedXML.Excel;
 
 namespace PatientMS.Controllers
 {
-    [Authorize(Roles = "Admin,Doctor")]
+    [Authorize]
     public class DoctorAvailabilityController : Controller
     {
         private readonly PatientMSContext _context;
@@ -23,36 +20,31 @@ namespace PatientMS.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var patientMSContext = _context.DoctorAvailability.Include(d => d.Doctor);
-            return View(await patientMSContext.ToListAsync());
+            var availability = _context.DoctorAvailability.Include(d => d.Doctor);
+            return View(await availability.ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var doctorAvailability = await _context.DoctorAvailability
+            if (id == null) return NotFound();
+            var availability = await _context.DoctorAvailability
                 .Include(d => d.Doctor)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (doctorAvailability == null)
-            {
-                return NotFound();
-            }
-
-            return View(doctorAvailability);
+            if (availability == null) return NotFound();
+            return View(availability);
         }
 
+        [Authorize(Roles = "Admin,Doctor")]
         public IActionResult Create()
         {
             ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName");
             return View();
         }
+
+        [Authorize(Roles = "Admin,Doctor")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,DoctorId,DayOfWeek,StartTime,EndTime,IsActive")] DoctorAvailability doctorAvailability)
+        public async Task<IActionResult> Create([Bind("Id,DoctorId,DayOfWeek,StartTime,EndTime,BreakStart,BreakEnd,IsActive")] DoctorAvailability doctorAvailability)
         {
             if (ModelState.IsValid)
             {
@@ -64,30 +56,82 @@ namespace PatientMS.Controllers
             return View(doctorAvailability);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        // Excel Upload
+        [Authorize(Roles = "Admin,Doctor")]
+        [HttpPost]
+        public async Task<IActionResult> UploadExcel(IFormFile excelFile)
         {
-            if (id == null)
+            if (excelFile == null || excelFile.Length == 0)
             {
-                return NotFound();
+                TempData["Error"] = "Please select a valid Excel file.";
+                return RedirectToAction(nameof(Index));
             }
 
-            var doctorAvailability = await _context.DoctorAvailability.FindAsync(id);
-            if (doctorAvailability == null)
+            var ext = Path.GetExtension(excelFile.FileName).ToLower();
+            if (ext != ".xlsx" && ext != ".xls")
             {
-                return NotFound();
+                TempData["Error"] = "Only .xlsx or .xls files are allowed.";
+                return RedirectToAction(nameof(Index));
             }
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await excelFile.CopyToAsync(stream);
+                using var workbook = new XLWorkbook(stream);
+                var worksheet = workbook.Worksheet(1);
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // skip header
+
+                foreach (var row in rows)
+                {
+                    var doctorName = row.Cell(1).GetString();
+                    var doctor = await _context.Doctor
+                        .FirstOrDefaultAsync(d => d.FullName == doctorName);
+
+                    if (doctor == null) continue;
+
+                    var availability = new DoctorAvailability
+                    {
+                        DoctorId = doctor.Id,
+                        DayOfWeek = row.Cell(2).GetString(),
+                        StartTime = TimeSpan.Parse(row.Cell(3).GetString()),
+                        EndTime = TimeSpan.Parse(row.Cell(4).GetString()),
+                        BreakStart = string.IsNullOrEmpty(row.Cell(5).GetString())
+                            ? null : TimeSpan.Parse(row.Cell(5).GetString()),
+                        BreakEnd = string.IsNullOrEmpty(row.Cell(6).GetString())
+                            ? null : TimeSpan.Parse(row.Cell(6).GetString()),
+                        IsActive = true
+                    };
+                    _context.Add(availability);
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Availability uploaded successfully from Excel.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error reading file: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize(Roles = "Admin,Doctor")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+            var doctorAvailability = await _context.DoctorAvailability.FindAsync(id);
+            if (doctorAvailability == null) return NotFound();
             ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName", doctorAvailability.DoctorId);
             return View(doctorAvailability);
         }
+
+        [Authorize(Roles = "Admin,Doctor")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,DoctorId,DayOfWeek,StartTime,EndTime,IsActive")] DoctorAvailability doctorAvailability)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,DoctorId,DayOfWeek,StartTime,EndTime,BreakStart,BreakEnd,IsActive")] DoctorAvailability doctorAvailability)
         {
-            if (id != doctorAvailability.Id)
-            {
-                return NotFound();
-            }
-
+            if (id != doctorAvailability.Id) return NotFound();
             if (ModelState.IsValid)
             {
                 try
@@ -97,14 +141,8 @@ namespace PatientMS.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DoctorAvailabilityExists(doctorAvailability.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!DoctorAvailabilityExists(doctorAvailability.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -112,34 +150,25 @@ namespace PatientMS.Controllers
             return View(doctorAvailability);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var doctorAvailability = await _context.DoctorAvailability
                 .Include(d => d.Doctor)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (doctorAvailability == null)
-            {
-                return NotFound();
-            }
-
+            if (doctorAvailability == null) return NotFound();
             return View(doctorAvailability);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var doctorAvailability = await _context.DoctorAvailability.FindAsync(id);
             if (doctorAvailability != null)
-            {
                 _context.DoctorAvailability.Remove(doctorAvailability);
-            }
-
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

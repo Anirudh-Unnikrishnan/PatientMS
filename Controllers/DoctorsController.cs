@@ -1,17 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PatientMS.Data;
 using PatientMS.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PatientMS.Controllers
 {
-    [Authorize(Roles = "Admin,Doctor")]
+    [Authorize]
     public class DoctorsController : Controller
     {
         private readonly PatientMSContext _context;
@@ -21,39 +16,32 @@ namespace PatientMS.Controllers
             _context = context;
         }
 
-        // GET: Doctors
+        // Any logged-in user can view doctors list
         public async Task<IActionResult> Index()
         {
             return View(await _context.Doctor.ToListAsync());
         }
 
-        // GET: Doctors/Details/5
+        // Any logged-in user can view doctor details
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var doctor = await _context.Doctor
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (doctor == null)
-            {
-                return NotFound();
-            }
+
+            if (doctor == null) return NotFound();
 
             return View(doctor);
         }
 
-        // GET: Doctors/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Doctors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FullName,Specialisation,PhoneNumber,Email,YearsOfExperience,Bio,IsAvailable")] Doctor doctor)
@@ -67,33 +55,23 @@ namespace PatientMS.Controllers
             return View(doctor);
         }
 
-        // GET: Doctors/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var doctor = await _context.Doctor.FindAsync(id);
-            if (doctor == null)
-            {
-                return NotFound();
-            }
+            if (doctor == null) return NotFound();
+
             return View(doctor);
         }
 
-        // POST: Doctors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Specialisation,PhoneNumber,Email,YearsOfExperience,Bio,IsAvailable")] Doctor doctor)
         {
-            if (id != doctor.Id)
-            {
-                return NotFound();
-            }
+            if (id != doctor.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -104,39 +82,28 @@ namespace PatientMS.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DoctorExists(doctor.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!DoctorExists(doctor.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
         }
 
-        // GET: Doctors/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var doctor = await _context.Doctor
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (doctor == null)
-            {
-                return NotFound();
-            }
+
+            if (doctor == null) return NotFound();
 
             return View(doctor);
         }
 
-        // POST: Doctors/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -146,7 +113,6 @@ namespace PatientMS.Controllers
             {
                 _context.Doctor.Remove(doctor);
             }
-
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
