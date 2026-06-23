@@ -23,7 +23,17 @@ namespace PatientMS.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var patientMSContext = _context.Booking.Include(b => b.Doctor).Include(b => b.Patient);
+            var patientMSContext = _context.Booking
+                .Include(b => b.Doctor)
+                .Include(b => b.Patient);
+
+            var doctors = await _context.Doctor
+                .Include(d => d.Availabilities)
+                .Where(d => d.IsAvailable)
+                .ToListAsync();
+
+            ViewBag.Doctors = doctors;
+
             return View(await patientMSContext.ToListAsync());
         }
 
@@ -47,9 +57,9 @@ namespace PatientMS.Controllers
             return View(booking);
         }
 
-        public IActionResult Create()
+        public IActionResult Create(int? doctorId)
         {
-            ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName");
+            ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName", doctorId);
             ViewData["PatientId"] = new SelectList(_context.Patient, "Id", "FullName");
             return View();
         }
@@ -60,10 +70,29 @@ namespace PatientMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Get the day of the week for the appointment
+                string appointmentDay = booking.AppointmentDate.DayOfWeek.ToString();
+
+                // Load all availabilities for this doctor into memory
+                var allAvailabilities = await _context.DoctorAvailability
+                    .Where(a => a.DoctorId == booking.DoctorId && a.IsActive)
+                    .ToListAsync();
+
+                // Case-insensitive day match
+                var availability = allAvailabilities
+                    .FirstOrDefault(a => string.Equals(a.DayOfWeek, appointmentDay, StringComparison.OrdinalIgnoreCase));
+
+                // DEBUG: Add temporary error to see all values
+                ModelState.AddModelError("AppointmentTime",
+                    $"AppointmentTime: {booking.AppointmentTime}, " +
+                    $"Day: {appointmentDay}, " +
+                    $"Not available " );
+
+                ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName", booking.DoctorId);
+                ViewData["PatientId"] = new SelectList(_context.Patient, "Id", "FullName", booking.PatientId);
+                return View(booking);
             }
+
             ViewData["DoctorId"] = new SelectList(_context.Doctor, "Id", "FullName", booking.DoctorId);
             ViewData["PatientId"] = new SelectList(_context.Patient, "Id", "FullName", booking.PatientId);
             return View(booking);
@@ -122,7 +151,6 @@ namespace PatientMS.Controllers
             return View(booking);
         }
 
-        // Only Admin and Receptionist can view delete page
         [Authorize(Roles = "Admin,Receptionist")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -144,7 +172,6 @@ namespace PatientMS.Controllers
             return View(booking);
         }
 
-        // Only Admin and Receptionist can confirm delete
         [Authorize(Roles = "Admin,Receptionist")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

@@ -16,13 +16,14 @@ namespace PatientMS.Controllers
             _context = context;
         }
 
-        // Any logged-in user can view doctors list
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Doctor.ToListAsync());
+            var doctors = await _context.Doctor
+                .Include(d => d.Availabilities)
+                .ToListAsync();
+            return View(doctors);
         }
 
-        // Any logged-in user can view doctor details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

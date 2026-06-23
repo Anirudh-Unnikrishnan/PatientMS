@@ -1,101 +1,69 @@
-@model PatientMS.Models.DoctorAvailability
+@model PatientMS.Models.Booking
 
 @{
-    ViewData["Title"] = "Add Doctor Availability";
+    ViewData["Title"] = "Create";
 }
 
-<h1>Add Doctor Availability</h1>
+<h1>Create</h1>
+
+<h4>Booking</h4>
 <hr />
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-
 <div class="row">
-    <div class="col-md-6">
-
-        <h5 class="mb-3">Option 1 — Fill in manually</h5>
-        <form asp-action="Create">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="form-group mb-3">
+            <div class="form-group">
+                <label asp-for="PatientId" class="control-label"></label>
+                <select asp-for="PatientId" class="form-control" asp-items="ViewBag.PatientId"></select>
+            </div>
+            <div class="form-group">
                 <label asp-for="DoctorId" class="control-label"></label>
-                <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId">
-                    <option value="">-- Select Doctor --</option>
-                </select>
+                <select asp-for="DoctorId" class="form-control" asp-items="ViewBag.DoctorId"></select>
             </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="DayOfWeek" class="control-label"></label>
-                <select asp-for="DayOfWeek" class="form-control">
-                    <option value="">-- Select Day --</option>
-                    <option>Monday</option>
-                    <option>Tuesday</option>
-                    <option>Wednesday</option>
-                    <option>Thursday</option>
-                    <option>Friday</option>
-                    <option>Saturday</option>
-                    <option>Sunday</option>
-                </select>
-                <span asp-validation-for="DayOfWeek" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="AppointmentDate" class="control-label"></label>
+                <input asp-for="AppointmentDate" class="form-control" />
+                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
             </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="StartTime" class="control-label"></label>
-                <input asp-for="StartTime" type="time" class="form-control" />
-                <span asp-validation-for="StartTime" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="AppointmentTime" class="control-label"></label>
+                <input asp-for="AppointmentTime" class="form-control" />
+                <span asp-validation-for="AppointmentTime" class="text-danger"></span>
             </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="EndTime" class="control-label"></label>
-                <input asp-for="EndTime" type="time" class="form-control" />
-                <span asp-validation-for="EndTime" class="text-danger"></span>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
             </div>
-
-            <div class="card mb-3 p-3 bg-light">
-                <h6>☕ Break Window (optional)</h6>
-                <div class="form-group mb-2">
-                    <label asp-for="BreakStart" class="control-label"></label>
-                    <input asp-for="BreakStart" type="time" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="BreakEnd" class="control-label"></label>
-                    <input asp-for="BreakEnd" type="time" class="form-control" />
-                </div>
+            <div class="form-group">
+                <label asp-for="ReasonForVisit" class="control-label"></label>
+                <input asp-for="ReasonForVisit" class="form-control" />
+                <span asp-validation-for="ReasonForVisit" class="text-danger"></span>
             </div>
-
-            <div class="form-group form-check mb-3">
-                <input class="form-check-input" asp-for="IsActive" />
-                <label class="form-check-label" asp-for="IsActive">Is Active</label>
+            <div class="form-group">
+                <label asp-for="DoctorNotes" class="control-label"></label>
+                <input asp-for="DoctorNotes" class="form-control" />
+                <span asp-validation-for="DoctorNotes" class="text-danger"></span>
             </div>
-
-            <input type="submit" value="Save Availability" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Upload Report File (PDF, JPG, PNG)</label>
+                <input type="file" name="uploadedFile" class="form-control"
+                       accept=".pdf,.jpg,.jpeg,.png" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
         </form>
-
-        <hr class="my-4" />
-
-        <h5 class="mb-3">Option 2 — Upload from Excel</h5>
-        <div class="card p-3 bg-light">
-            <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
-                <div class="form-group mb-3">
-                    <label class="control-label">Select Excel File (.xlsx)</label>
-                    <input type="file" name="excelFile" class="form-control"
-                           accept=".xlsx,.xls" />
-                    <small class="text-muted">
-                        Excel columns must be in this order:
-                        <strong>Doctor Name | Day | Start Time | End Time | Break Start | Break End</strong>
-                    </small>
-                </div>
-                <button type="submit" class="btn btn-success">Upload Excel</button>
-            </form>
-        </div>
     </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
