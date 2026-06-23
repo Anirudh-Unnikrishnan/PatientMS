@@ -5,19 +5,16 @@
 @section Styles {
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
     <style>
-        /* ── Calendar container ── */
         .fc {
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* ── Toolbar title ── */
         .fc-toolbar-title {
             font-size: 1.3rem;
             font-weight: 700;
             color: #4fd1c5;
         }
 
-        /* ── Toolbar buttons ── */
         .fc-button-primary {
             background: linear-gradient(135deg, #2c7a7b, #4fd1c5) !important;
             border: none !important;
@@ -28,25 +25,23 @@
             transition: all 0.2s ease !important;
         }
 
-            .fc-button-primary:hover {
-                background: linear-gradient(135deg, #4fd1c5, #81e6d9) !important;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(79,209,197,0.4) !important;
-            }
+        .fc-button-primary:hover {
+            background: linear-gradient(135deg, #4fd1c5, #81e6d9) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79,209,197,0.4) !important;
+        }
 
-            .fc-button-primary:not(:disabled):active,
-            .fc-button-primary:not(:disabled).fc-button-active {
-                background: #2c7a7b !important;
-                box-shadow: none !important;
-            }
+        .fc-button-primary:not(:disabled):active,
+        .fc-button-primary:not(:disabled).fc-button-active {
+            background: #2c7a7b !important;
+            box-shadow: none !important;
+        }
 
-        /* ── Calendar background ── */
         .fc-view-harness {
             background: #1a2332;
             border-radius: 12px;
         }
 
-        /* ── Day headers ── */
         .fc-col-header-cell {
             background: linear-gradient(135deg, #1a3a4a, #2c7a7b);
             padding: 10px 0 !important;
@@ -61,7 +56,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ── Time slots ── */
         .fc-timegrid-slot {
             border-color: #2d3748 !important;
         }
@@ -72,7 +66,6 @@
             font-weight: 600;
         }
 
-        /* ── Day cells ── */
         .fc-daygrid-day {
             background: #1a2332;
             border-color: #2d3748 !important;
@@ -87,12 +80,11 @@
             background: rgba(79,209,197,0.06) !important;
         }
 
-            .fc-day-today .fc-daygrid-day-number {
-                color: #4fd1c5 !important;
-                font-weight: 700;
-            }
+        .fc-day-today .fc-daygrid-day-number {
+            color: #4fd1c5 !important;
+            font-weight: 700;
+        }
 
-        /* ── Grid lines ── */
         .fc-scrollgrid,
         .fc-scrollgrid-section > td,
         .fc-scrollgrid td,
@@ -100,7 +92,6 @@
             border-color: #2d3748 !important;
         }
 
-        /* ── Now indicator ── */
         .fc-timegrid-now-indicator-line {
             border-color: #4fd1c5 !important;
             border-width: 2px !important;
@@ -110,7 +101,6 @@
             border-top-color: #4fd1c5 !important;
         }
 
-        /* ── Events ── */
         .fc-event {
             border-radius: 8px !important;
             font-size: 0.8rem !important;
@@ -121,26 +111,86 @@
             transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
 
-            .fc-event:hover {
-                transform: scale(1.02);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-            }
+        .fc-event:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
 
         .fc-event-title {
             color: white !important;
         }
 
-        /* ── Month view more link ── */
         .fc-daygrid-more-link {
             color: #4fd1c5 !important;
             font-weight: 700;
         }
+
+        /* Status badge colors in modal */
+        .status-scheduled {
+            background: rgba(79,209,197,0.15);
+            color: #4fd1c5;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .status-completed {
+            background: rgba(56,161,105,0.15);
+            color: #68d391;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .status-cancelled {
+            background: rgba(229,62,62,0.15);
+            color: #fc8181;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .status-break {
+            background: rgba(214,158,46,0.15);
+            color: #f6e05e;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
     </style>
 }
 
-<h2 style="font-weight:700; margin-bottom:24px;">Appointment Calendar</h2>
+<h2 style="font-weight:700; margin-bottom:16px;">Appointment Calendar</h2>
 
-<div class="card" style="padding: 24px;">
+<!-- Status Legend -->
+<div style="display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap;">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:12px; height:12px; border-radius:50%;
+        background:#4fd1c5;"></div>
+        <span style="color:#a0aec0; font-size:0.85rem; font-weight:600;">Scheduled</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:12px; height:12px; border-radius:50%;
+        background:#38a169;"></div>
+        <span style="color:#a0aec0; font-size:0.85rem; font-weight:600;">Completed</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:12px; height:12px; border-radius:50%;
+        background:#e53e3e;"></div>
+        <span style="color:#a0aec0; font-size:0.85rem; font-weight:600;">Cancelled</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <div style="width:12px; height:12px; border-radius:50%;
+        background:#d69e2e;"></div>
+        <span style="color:#a0aec0; font-size:0.85rem; font-weight:600;">Break</span>
+    </div>
+</div>
+
+<div class="card" style="padding:24px;">
     <div id="calendar" style="min-height:600px;"></div>
 </div>
 
@@ -157,9 +207,10 @@
             </div>
             <div class="modal-body">
                 <table style="width:100%; border-collapse:collapse;">
-                    <tr style="border-bottom:1px solid #2d3748; padding-bottom:8px;">
+                    <tr style="border-bottom:1px solid #2d3748;">
                         <td style="color:#a0aec0; font-weight:600; padding:10px 0;
-                            width:80px; font-size:0.8rem; text-transform:uppercase;">
+                            width:80px; font-size:0.8rem;
+                            text-transform:uppercase;">
                             Patient
                         </td>
                         <td style="color:#e2e8f0; font-weight:600; padding:10px 0;">
@@ -181,12 +232,7 @@
                             Status
                         </td>
                         <td style="padding:10px 0;">
-                            <span id="modal-status"
-                                  style="background:rgba(79,209,197,0.15);
-                                color:#4fd1c5; border-radius:20px;
-                                padding:3px 12px; font-weight:700;
-                                font-size:0.8rem;">
-                            </span>
+                            <span id="modal-status"></span>
                         </td>
                     </tr>
                     <tr>
@@ -228,19 +274,33 @@
         nowIndicator: true,
         events: '/Calendar/GetEvents',
         eventClick: function (info) {
-        if (info.event.extendedProps.patient) {
+        var props = info.event.extendedProps;
+
         document.getElementById('modal-patient').textContent =
-        info.event.extendedProps.patient || 'N/A';
+        props.patient || 'N/A';
         document.getElementById('modal-doctor').textContent =
-        info.event.extendedProps.doctor || 'N/A';
-        document.getElementById('modal-status').textContent =
-        info.event.extendedProps.status || 'N/A';
+        props.doctor || 'N/A';
         document.getElementById('modal-reason').textContent =
-        info.event.extendedProps.reason || 'Not specified';
+        props.reason || 'Not specified';
+
+        // Set status with colour coded badge
+        var statusEl = document.getElementById('modal-status');
+        var status = props.status || 'N/A';
+        statusEl.textContent = status;
+        statusEl.className = '';
+
+        if (status === 'Completed')
+        statusEl.className = 'status-completed';
+        else if (status === 'Cancelled')
+        statusEl.className = 'status-cancelled';
+        else if (status === 'Break')
+        statusEl.className = 'status-break';
+        else
+        statusEl.className = 'status-scheduled';
+
         var modal = new bootstrap.Modal(
         document.getElementById('eventModal'));
         modal.show();
-        }
         },
         eventDidMount: function (info) {
         info.el.title = info.event.title;

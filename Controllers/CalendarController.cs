@@ -24,7 +24,7 @@ public class CalendarController : Controller
         var currentUserEmail = User.Identity?.Name;
         var isDoctor = User.IsInRole("Doctor");
 
-        // If logged in as Doctor, find their Doctor record by email
+        // Find current doctor record if logged in as Doctor
         Doctor? currentDoctor = null;
         if (isDoctor && currentUserEmail != null)
         {
@@ -33,38 +33,43 @@ public class CalendarController : Controller
                     d.Email.ToLower() == currentUserEmail.ToLower());
         }
 
-        // Get bookings — filter by doctor if logged in as Doctor
+        // Get bookings filtered by doctor if needed
         var bookingsQuery = _context.Booking
             .Include(b => b.Patient)
             .Include(b => b.Doctor)
             .AsQueryable();
 
         if (isDoctor && currentDoctor != null)
-        {
-            bookingsQuery = bookingsQuery
-                .Where(b => b.DoctorId == currentDoctor.Id);
-        }
+            bookingsQuery = bookingsQuery.Where(b => b.DoctorId == currentDoctor.Id);
 
         var bookings = await bookingsQuery.ToListAsync();
+        var now = DateTime.Now;
 
         var events = bookings.Select(b =>
         {
             var status = (b.Status ?? "").Trim();
 
+            // Combine appointment date and time into one DateTime
+            var appointmentDateTime = b.AppointmentDate.Date.Add(b.AppointmentTime);
+
+            // Auto mark as Completed if appointment time has passed
+            // and it wasn't manually cancelled
+            if (appointmentDateTime < now && status != "Cancelled")
+                status = "Completed";
+
             string color;
             if (status == "Completed")
-                color = "#38a169";
+                color = "#38a169"; // green
             else if (status == "Cancelled")
-                color = "#e53e3e";
+                color = "#e53e3e"; // red
             else
-                color = "#4fd1c5";
+                color = "#4fd1c5"; // teal for Scheduled
 
             return new
             {
                 id = b.Id.ToString(),
                 title = $"{b.Patient!.FullName} — Dr. {b.Doctor!.FullName}",
-                start = b.AppointmentDate.Date.Add(b.AppointmentTime)
-                    .ToString("yyyy-MM-ddTHH:mm:ss"),
+                start = appointmentDateTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                 color = color,
                 extendedProps = new
                 {
@@ -77,20 +82,17 @@ public class CalendarController : Controller
             };
         }).ToList();
 
-        // Get break events — filter by doctor if logged in as Doctor
+        // Get break events filtered by doctor if needed
         var availabilityQuery = _context.DoctorAvailability
             .Include(a => a.Doctor)
             .Where(a => a.BreakStart != null && a.BreakEnd != null && a.IsActive)
             .AsQueryable();
 
         if (isDoctor && currentDoctor != null)
-        {
             availabilityQuery = availabilityQuery
                 .Where(a => a.DoctorId == currentDoctor.Id);
-        }
 
         var availabilities = await availabilityQuery.ToListAsync();
-
         var today = DateTime.Today;
         var breakEvents = new List<object>();
 
@@ -104,18 +106,13 @@ public class CalendarController : Controller
 
                 if (calendarDay == availDay)
                 {
-                    // Validate break times are reasonable
-                    // (not midnight/1am which means data was saved incorrectly)
-                    var breakStart = a.BreakStart!.Value;
-                    var breakEnd = a.BreakEnd!.Value;
-
                     breakEvents.Add(new
                     {
                         id = $"break-{a.Id}-{i}",
                         title = $"Break — Dr. {a.Doctor!.FullName}",
-                        start = date.Add(breakStart)
+                        start = date.Add(a.BreakStart!.Value)
                             .ToString("yyyy-MM-ddTHH:mm:ss"),
-                        end = date.Add(breakEnd)
+                        end = date.Add(a.BreakEnd!.Value)
                             .ToString("yyyy-MM-ddTHH:mm:ss"),
                         color = "#d69e2e",
                         extendedProps = new
